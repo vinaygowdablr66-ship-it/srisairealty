@@ -275,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const body = document.getElementById('propertyModalBody');
 
         const images = p.images && p.images.length ? p.images : [];
+        modalPropertyImages = images;
 
         body.innerHTML = `
             <div class="pm-images">
@@ -326,12 +327,56 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.style.overflow = '';
     };
 
+    var modalPropertyImages = [];
     window.openImage = function (index) {
-        const p = allProperties.find((x) => x.id === document.querySelector('.property-modal-content #propertyModalBody') && true);
+        if (!modalPropertyImages.length) return;
+        var lb = document.getElementById('imageLightbox');
+        if (!lb) {
+            lb = document.createElement('div');
+            lb.id = 'imageLightbox';
+            lb.className = 'image-lightbox';
+            lb.innerHTML = '<button class="lightbox-close" onclick="closeImageLightbox()"><i class="fas fa-times"></i></button>' +
+                '<button class="lightbox-prev" onclick="navImage(-1)"><i class="fas fa-chevron-left"></i></button>' +
+                '<img class="lightbox-img" src="" alt="Property image">' +
+                '<button class="lightbox-next" onclick="navImage(1)"><i class="fas fa-chevron-right"></i></button>';
+            document.body.appendChild(lb);
+        }
+        window._lightboxIndex = index;
+        window._lightboxImages = modalPropertyImages;
+        renderLightbox();
+        lb.classList.add('open');
+    };
+
+    window.renderLightbox = function () {
+        var lb = document.getElementById('imageLightbox');
+        if (!lb) return;
+        var img = lb.querySelector('.lightbox-img');
+        var idx = window._lightboxIndex;
+        var images = window._lightboxImages || [];
+        if (images.length && img) img.src = images[idx];
+        var prev = lb.querySelector('.lightbox-prev');
+        var next = lb.querySelector('.lightbox-next');
+        if (prev) prev.style.display = images.length > 1 ? 'flex' : 'none';
+        if (next) next.style.display = images.length > 1 ? 'flex' : 'none';
+    };
+
+    window.navImage = function (delta) {
+        var images = window._lightboxImages || [];
+        if (!images.length) return;
+        window._lightboxIndex = (window._lightboxIndex + delta + images.length) % images.length;
+        renderLightbox();
+    };
+
+    window.closeImageLightbox = function () {
+        var lb = document.getElementById('imageLightbox');
+        if (lb) lb.classList.remove('open');
     };
 
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closePropertyModal();
+        if (e.key === 'Escape') {
+            closeImageLightbox();
+            closePropertyModal();
+        }
     });
 
     // ============================================

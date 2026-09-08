@@ -26,6 +26,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Static: admin pages
 app.use('/admin', express.static(path.join(__dirname, 'admin')));
 
+// Redirect /admin to login page
+app.get('/admin', (req, res) => res.redirect('/admin/login.html'));
+app.get('/admin/', (req, res) => res.redirect('/admin/login.html'));
+
 // === File upload setup ===
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
