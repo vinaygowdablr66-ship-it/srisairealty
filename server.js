@@ -1,20 +1,24 @@
 const dotenv = require('dotenv');
+const express = require('express');
 dotenv.config();
 
 const db = require('./data/db');
 const { createApp } = require('./lib/app');
 
 const PORT = process.env.PORT || 3000;
-const app = createApp();
+const app = createApp(express);
 
-// === Start ===
-(async () => {
-  await db.init();
-  app.listen(PORT, () => {
-    console.log('========================================');
-    console.log('  Sri Sai Realty Server Running');
-    console.log('  Site:      http://localhost:' + PORT);
-    console.log('  Admin:     http://localhost:' + PORT + '/admin/');
-    console.log('========================================');
-  });
-})();
+if (require.main === module) {
+  (async () => {
+    await db.init();
+    app.listen(PORT, () => {
+      console.log('========================================');
+      console.log('  Sri Sai Realty Server Running');
+      console.log('  Site:      http://localhost:' + PORT);
+      console.log('  Admin:     http://localhost:' + PORT + '/admin/');
+      console.log('========================================');
+    });
+  })();
+}
+
+module.exports = app;
