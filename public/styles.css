@@ -92,10 +92,10 @@ ul { list-style: none; }
 .logo-text { display: flex; flex-direction: column; }
 .logo-name {
     font-family: 'Playfair Display', serif; font-size: 1.25rem;
-    font-weight: 700; color: var(--white); line-height: 1.2;
+    font-weight: 700; color: var(--dark); line-height: 1.2;
 }
 .logo-tagline {
-    font-size: 0.6rem; color: rgba(255,255,255,0.6);
+    font-size: 0.6rem; color: var(--primary-dark);
     text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500;
 }
 .navbar.scrolled .logo-name { color: var(--dark); }
@@ -103,11 +103,11 @@ ul { list-style: none; }
 .nav-menu { display: flex; align-items: center; gap: 4px; }
 .nav-link {
     padding: 8px 16px; font-size: 0.9rem; font-weight: 500;
-    color: rgba(255, 255, 255, 0.85); border-radius: var(--radius-sm);
+    color: var(--text-secondary); border-radius: var(--radius-sm);
     transition: var(--transition);
 }
 .navbar.scrolled .nav-link { color: var(--text-secondary); }
-.nav-link:hover, .nav-link.active { color: var(--white); background: rgba(255,255,255,0.12); }
+.nav-link:hover, .nav-link.active { color: var(--primary-dark); background: var(--primary-50); }
 .navbar.scrolled .nav-link:hover, .navbar.scrolled .nav-link.active { color: var(--primary-dark); background: var(--primary-50); }
 .nav-link.nav-cta {
     background: var(--gradient-gold); color: var(--white) !important;
@@ -121,7 +121,7 @@ ul { list-style: none; }
     border: none; cursor: pointer; padding: 8px; z-index: 1001;
 }
 .nav-toggle span {
-    width: 24px; height: 2px; background: var(--white);
+    width: 24px; height: 2px; background: var(--dark);
     border-radius: 2px; transition: var(--transition);
 }
 .navbar.scrolled .nav-toggle span { background: var(--dark); }
