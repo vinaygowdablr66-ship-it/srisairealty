@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
 
-# Data (local storage - no longer used, data stored in Supabase)
-data/
+# Local data (the Supabase adapter in data/db.js is deployed)
+data/db.json
 uploads/
 
 # Environment
