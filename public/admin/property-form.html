@@ -15,8 +15,7 @@
     <script src="js/layout.js"></script>
     <script>
         requireAuth();
-        const editId = new URLSearchParams(window.location.search).get('id');
-        renderLayout(editId ? 'properties' : 'properties');
+        renderLayout('properties');
     </script>
     <script src="js/property-form.js"></script>
 </body>
