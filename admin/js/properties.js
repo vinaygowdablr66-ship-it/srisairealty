@@ -17,30 +17,25 @@ function renderPage() {
             </div>
             <a href="/admin/property-form.html" class="btn btn-primary"><i class="fas fa-plus"></i> Add Property</a>
         </div>
-        <div class="filter-pills" style="margin-bottom: 20px;">
-            <button class="filter-pill active" data-filter="all" onclick="setFilter('all', this)">All</button>
-            <button class="filter-pill" data-filter="residential" onclick="setFilter('residential', this)">Residential</button>
-            <button class="filter-pill" data-filter="commercial" onclick="setFilter('commercial', this)">Commercial</button>
-            <button class="filter-pill" data-filter="plot" onclick="setFilter('plot', this)">Plots & Land</button>
-            <button class="filter-pill" data-filter="featured" onclick="setFilter('featured', this)">Featured</button>
-        </div>
         <div class="card">
             <div class="table-responsive">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>Property</th>
-                            <th>Type</th>
-                            <th>Location</th>
+                            <th>Size</th>
+                            <th>Place</th>
+                            <th>Facing</th>
+                            <th>Khata</th>
+                            <th>Available</th>
                             <th>Price</th>
-                            <th>Beds</th>
                             <th>Featured</th>
                             <th>Updated</th>
                             <th style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="propertiesTableBody">
-                        <tr><td colspan="8" class="empty-cell"><div class="spinner" style="margin: 0 auto 12px;"></div>Loading properties...</td></tr>
+                        <tr><td colspan="10" class="empty-cell"><div class="spinner" style="margin: 0 auto 12px;"></div>Loading properties...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -60,28 +55,19 @@ async function loadProperties() {
         allProperties = await API.get('/api/properties');
         renderTable();
     } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-cell">Failed to load properties: ${esc(err.message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="empty-cell">Failed to load properties: ${esc(err.message)}</td></tr>`;
     }
-}
-
-function setFilter(filter, btn) {
-    currentFilter = filter;
-    document.querySelectorAll('.filter-pill').forEach((b) => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    renderTable();
 }
 
 function getFilteredProperties() {
     return allProperties.filter((p) => {
-        const matchesFilter =
-            currentFilter === 'all' ||
-            (currentFilter === 'featured' ? p.featured : p.type === currentFilter);
         const matchesSearch =
             !searchTerm ||
-            (p.title || '').toLowerCase().includes(searchTerm) ||
-            (p.location || '').toLowerCase().includes(searchTerm) ||
+            (p.name || '').toLowerCase().includes(searchTerm) ||
+            (p.place || '').toLowerCase().includes(searchTerm) ||
+            (p.size || '').toLowerCase().includes(searchTerm) ||
             (p.price || '').toLowerCase().includes(searchTerm);
-        return matchesFilter && matchesSearch;
+        return matchesSearch;
     });
 }
 
@@ -91,7 +77,7 @@ function renderTable() {
     const filtered = getFilteredProperties();
 
     if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-cell"><i class="fas fa-building" style="margin-right: 8px;"></i>No properties found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="10" class="empty-cell"><i class="fas fa-building" style="margin-right: 8px;"></i>No properties found.</td></tr>`;
         return;
     }
 
@@ -103,15 +89,17 @@ function renderTable() {
                         ? `<img src="${p.images[0]}" class="table-img" alt="">`
                         : `<div class="table-img" style="background: var(--gray-100); display: flex; align-items: center; justify-content: center; color: var(--text-muted);"><i class="fas fa-building"></i></div>`}
                     <div>
-                        <strong>${esc(p.title)}</strong>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);">${esc(p.subType || p.type)}</div>
+                        <strong>${esc(p.name)}</strong>
+                        ${p.loan ? `<div style="font-size: 0.75rem; color: ${p.loan === 'Yes' ? 'var(--warning)' : 'var(--text-muted)'};">Loan: ${esc(p.loan)}</div>` : ''}
                     </div>
                 </div>
             </td>
-            <td><span class="status-badge ${p.type === 'commercial' ? 'status-contacted' : p.type === 'plot' ? 'status-new' : 'status-featured'}">${esc(capitalize(p.type))}</span></td>
-            <td><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 6px;"></i>${esc(p.location)}</td>
-            <td><strong style="color: var(--primary-dark);">${esc(p.price)}</strong></td>
-            <td>${p.beds ? p.beds : '—'}</td>
+            <td>${esc(p.size)}</td>
+            <td><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 6px;"></i>${esc(p.place)}</td>
+            <td>${esc(p.facing)}</td>
+            <td><span class="status-badge status-new">${esc(p.khata || '—')}</span></td>
+            <td>${esc(p.available || '—')}</td>
+            <td><strong style="color: var(--primary-dark);">${esc(p.price || '—')}</strong></td>
             <td>
                 <label class="toggle">
                     <input type="checkbox" ${p.featured ? 'checked' : ''} onchange="toggleFeatured('${p.id}', this.checked)">
@@ -139,7 +127,7 @@ async function toggleFeatured(id, featured) {
 
 async function deleteProperty(id) {
     const p = allProperties.find((x) => x.id === id);
-    if (!confirm(`Delete "${p ? p.title : 'this property'}"? This cannot be undone.`)) return;
+    if (!confirm(`Delete "${p ? p.name : 'this property'}"? This cannot be undone.`)) return;
 
     try {
         await API.del('/api/properties/' + id);
@@ -148,9 +136,4 @@ async function deleteProperty(id) {
     } catch (err) {
         toast(err.message, 'error');
     }
-}
-
-function capitalize(str) {
-    if (!str) return '';
-    return str.charAt(0).toUpperCase() + str.slice(1);
 }

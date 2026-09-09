@@ -1,0 +1,4 @@
+# Local data / uploads (not needed on Vercel - uses Supabase)
+data/
+uploads/
+server.log

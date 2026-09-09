@@ -32,17 +32,17 @@ async function loadDashboard() {
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon green"><i class="fas fa-home"></i></div>
+                    <div class="stat-icon green"><i class="fas fa-tag"></i></div>
                     <div class="stat-info">
-                        <h3>${stats.residential}</h3>
-                        <p>Residential</p>
+                        <h3>${stats.availableCount}</h3>
+                        <p>Available Properties</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon blue"><i class="fas fa-city"></i></div>
+                    <div class="stat-icon blue"><i class="fas fa-home"></i></div>
                     <div class="stat-info">
-                        <h3>${stats.commercial}</h3>
-                        <p>Commercial</p>
+                        <h3>${stats.featuredCount}</h3>
+                        <p>Featured Properties</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -88,8 +88,8 @@ async function loadDashboard() {
                         <thead>
                             <tr>
                                 <th>Property</th>
-                                <th>Type</th>
-                                <th>Location</th>
+                                <th>Size</th>
+                                <th>Place</th>
                                 <th>Price</th>
                                 <th>Status</th>
                             </tr>
@@ -135,12 +135,12 @@ function renderRecentProperties(properties) {
                     ${p.images && p.images.length
                         ? `<img src="${p.images[0]}" class="table-img" alt="">`
                         : `<div class="table-img" style="background: var(--gray-100); display: flex; align-items: center; justify-content: center; color: var(--text-muted);"><i class="fas fa-building"></i></div>`}
-                    <strong>${esc(p.title)}</strong>
+                    <strong>${esc(p.name)}</strong>
                 </div>
             </td>
-            <td><span class="status-badge ${p.type === 'commercial' ? 'status-contacted' : p.type === 'plot' ? 'status-new' : 'status-featured'}">${esc(capitalize(p.type))}</span></td>
-            <td><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 6px;"></i>${esc(p.location)}</td>
-            <td><strong style="color: var(--primary-dark);">${esc(p.price)}</strong></td>
+            <td>${esc(p.size || '—')}</td>
+            <td><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 6px;"></i>${esc(p.place || '—')}</td>
+            <td><strong style="color: var(--primary-dark);">${esc(p.price || '—')}</strong></td>
             <td><span class="status-badge ${p.featured ? 'status-featured' : 'status-normal'}">${p.featured ? 'Featured' : esc(p.status || '—')}</span></td>
         </tr>`).join('');
 }

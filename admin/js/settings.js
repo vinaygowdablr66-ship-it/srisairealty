@@ -36,7 +36,7 @@ function renderPage() {
             <div class="card-body" style="font-size: 0.9rem; color: var(--text-secondary);">
                 <p style="margin-bottom: 10px;"><strong style="color: var(--dark);">Sri Sai Realty Admin Panel</strong> v1.0.0</p>
                 <p style="margin-bottom: 10px;">Manage your property listings and customer enquiries from one place.</p>
-                <p style="margin-bottom: 10px;">Data is currently stored locally in a JSON file. This will be migrated to Supabase.</p>
+                <p style="margin-bottom: 10px;">Data is stored securely in Supabase (PostgreSQL + Storage).</p>
                 <p>Username: <code>${esc(getAdminName())}</code></p>
             </div>
         </div>`;

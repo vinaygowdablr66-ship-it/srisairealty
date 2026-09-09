@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
 let selectedFiles = [];
 let existingImages = [];
 let removeImages = [];
+let editId = new URLSearchParams(window.location.search).get('id');
 
 function loadProperty(id) {
     const content = document.getElementById('contentArea');
@@ -41,6 +42,10 @@ function renderForm(p) {
     const isEdit = !!p;
     existingImages = p ? p.images || [] : [];
 
+    const khataOptions = ['', 'A Khata', 'B Khata', 'Commercial', 'Other'];
+    const loanOptions = ['', 'Yes', 'No'];
+    const availableOptions = ['', 'Buy', 'Lease', 'Rent'];
+
     content.innerHTML = `
         <div class="card">
             <div class="card-header">
@@ -51,63 +56,73 @@ function renderForm(p) {
                 <form id="propertyForm">
                     <div class="form-grid">
                         <div class="form-group full">
-                            <label for="title">Property Title <span class="required">*</span></label>
-                            <input type="text" id="title" name="title" required placeholder="e.g. Premium 3BHK Apartment" value="${isEdit ? esc(p.title) : ''}">
+                            <label for="name">Property Name <span class="required">*</span></label>
+                            <input type="text" id="name" name="name" required placeholder="e.g. Sai Residency, Green Villa, etc." value="${isEdit ? esc(p.name) : ''}">
+                        </div>
+
+                        <div class="form-group full">
+                            <label for="size">Property Size <span class="required">*</span></label>
+                            <input type="text" id="size" name="size" required placeholder="e.g. 2BHK, 3BHK, Independent House" value="${isEdit ? esc(p.size) : ''}">
                         </div>
 
                         <div class="form-group">
-                            <label for="type">Property Type <span class="required">*</span></label>
-                            <select id="type" name="type" required onchange="updateSubTypeOptions()">
-                                <option value="">Select type</option>
-                                <option value="residential" ${isEdit && p.type === 'residential' ? 'selected' : ''}>Residential</option>
-                                <option value="commercial" ${isEdit && p.type === 'commercial' ? 'selected' : ''}>Commercial</option>
-                                <option value="plot" ${isEdit && p.type === 'plot' ? 'selected' : ''}>Plot / Land</option>
+                            <label for="facing">Property Facing</label>
+                            <select id="facing" name="facing">
+                                ${['', 'East', 'West', 'North', 'South', 'North-East', 'North-West', 'South-East', 'South-West'].map((f) =>
+                                    `<option value="${f}" ${isEdit && p.facing === f ? 'selected' : ''}>${f || 'Select facing'}</option>`).join('')}
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="subType">Sub Type</label>
-                            <select id="subType" name="subType">
-                                <option value="">Select sub type</option>
+                            <label for="khata">Property Khata</label>
+                            <select id="khata" name="khata">
+                                ${khataOptions.map((k) =>
+                                    `<option value="${k}" ${isEdit && p.khata === k ? 'selected' : ''}>${k || 'Select khata'}</option>`).join('')}
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label for="location">Location <span class="required">*</span></label>
-                            <input type="text" id="location" name="location" required placeholder="e.g. Whitefield, Bengaluru" value="${isEdit ? esc(p.location) : ''}">
+                            <label for="place">Place <span class="required">*</span></label>
+                            <input type="text" id="place" name="place" required placeholder="e.g. BTM Layout, Bengaluru" value="${isEdit ? esc(p.place) : ''}">
                         </div>
 
                         <div class="form-group">
-                            <label for="price">Price <span class="required">*</span></label>
-                            <input type="text" id="price" name="price" required placeholder="e.g. ₹1.2 Cr or ₹85 Lakh" value="${isEdit ? esc(p.price) : ''}">
+                            <label for="road">Road Width (feet)</label>
+                            <input type="text" id="road" name="road" placeholder="e.g. 40 feet road" value="${isEdit ? esc(p.road) : ''}">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loan">Existing Loan</label>
+                            <select id="loan" name="loan">
+                                ${loanOptions.map((l) =>
+                                    `<option value="${l}" ${isEdit && p.loan === l ? 'selected' : ''}>${l || 'Select'}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="available">Available For</label>
+                            <select id="available" name="available">
+                                ${availableOptions.map((a) =>
+                                    `<option value="${a}" ${isEdit && p.available === a ? 'selected' : ''}>${a || 'Select'}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <input type="text" id="price" name="price" placeholder="e.g. ₹1.2 Cr or ₹85 Lakh" value="${isEdit ? esc(p.price) : ''}">
                         </div>
 
                         <div class="form-group">
                             <label for="status">Listing Status</label>
                             <select id="status" name="status">
-                                ${['For Sale', 'New Launch', 'Ready to Move', 'Under Construction', 'BDA Approved', 'Ready to Occupy', 'Sold', 'Rented'].map((s) =>
+                                ${['Available', 'Sold', 'Rented', 'Under Construction'].map((s) =>
                                     `<option value="${s}" ${isEdit && p.status === s ? 'selected' : ''}>${s}</option>`).join('')}
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="beds">Bedrooms</label>
-                            <input type="number" id="beds" name="beds" min="0" max="20" placeholder="e.g. 3" value="${isEdit ? (p.beds || '') : ''}">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="baths">Bathrooms</label>
-                            <input type="number" id="baths" name="baths" min="0" max="20" placeholder="e.g. 2" value="${isEdit ? (p.baths || '') : ''}">
-                        </div>
-
                         <div class="form-group full">
-                            <label for="area">Area / Size</label>
-                            <input type="text" id="area" name="area" placeholder="e.g. 1,450 sq.ft" value="${isEdit ? esc(p.area) : ''}">
-                        </div>
-
-                        <div class="form-group full">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="4" placeholder="Describe the property, amenities, nearby attractions, etc.">${isEdit ? esc(p.description) : ''}</textarea>
+                            <label for="description">Brief Explanation About the Property</label>
+                            <textarea id="description" name="description" rows="5" placeholder="Describe the property, amenities, nearby facilities, condition, etc.">${isEdit ? esc(p.description) : ''}</textarea>
                         </div>
 
                         ${isEdit && existingImages.length ? `
@@ -152,29 +167,7 @@ function renderForm(p) {
             </div>
         </div>`;
 
-    populateSubTypes(isEdit ? p : null);
     document.getElementById('propertyForm').addEventListener('submit', handleSubmit);
-}
-
-function updateSubTypeOptions() {
-    populateSubTypes();
-}
-
-function populateSubTypes(p) {
-    const type = document.getElementById('type').value;
-    const select = document.getElementById('subType');
-    let options = [];
-
-    if (type === 'residential') {
-        options = ['1BHK', '2BHK', '3BHK', '4BHK', '5BHK+', 'Villa', 'Penthouse', 'Studio', 'Independent House'];
-    } else if (type === 'commercial') {
-        options = ['Office Space', 'Retail / Showroom', 'Shop', 'Warehouse', 'Co-working Space', 'Industrial'];
-    } else if (type === 'plot') {
-        options = ['Residential Plot', 'Commercial Plot', 'Farm Land', 'Agricultural Land'];
-    }
-
-    select.innerHTML = `<option value="">Select sub type</option>` +
-        options.map((o) => `<option value="${o}" ${p && p.subType === o ? 'selected' : ''}>${o}</option>`).join('');
 }
 
 function handleFiles(files) {
@@ -211,15 +204,16 @@ async function handleSubmit(e) {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
     const formData = new FormData();
-    formData.append('title', document.getElementById('title').value.trim());
-    formData.append('type', document.getElementById('type').value);
-    formData.append('subType', document.getElementById('subType').value);
-    formData.append('location', document.getElementById('location').value.trim());
+    formData.append('name', document.getElementById('name').value.trim());
+    formData.append('size', document.getElementById('size').value.trim());
+    formData.append('facing', document.getElementById('facing').value);
+    formData.append('khata', document.getElementById('khata').value);
+    formData.append('place', document.getElementById('place').value.trim());
+    formData.append('road', document.getElementById('road').value.trim());
+    formData.append('loan', document.getElementById('loan').value);
+    formData.append('available', document.getElementById('available').value);
     formData.append('price', document.getElementById('price').value.trim());
     formData.append('status', document.getElementById('status').value);
-    formData.append('beds', document.getElementById('beds').value || 0);
-    formData.append('baths', document.getElementById('baths').value || 0);
-    formData.append('area', document.getElementById('area').value);
     formData.append('description', document.getElementById('description').value);
     formData.append('featured', document.getElementById('featured').checked);
 

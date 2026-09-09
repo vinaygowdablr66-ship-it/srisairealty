@@ -137,67 +137,52 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentFilter = 'all';
     const propertiesGrid = document.querySelector('.properties-grid');
 
-    function getPropertyIcon(type) {
-        switch (type) {
-            case 'commercial': return 'fa-city';
-            case 'plot': return 'fa-map';
-            default: return 'fa-home';
-        }
+    function getPropertyIcon() {
+        return 'fa-home';
     }
 
     function getBadgeClass(p) {
-        if (p.type === 'commercial') return 'badge-commercial';
-        if (p.type === 'plot') return 'badge-plot';
-        const status = (p.status || '').toLowerCase();
-        if (status.includes('new')) return 'badge-new';
+        const status = (p.available || p.status || '').toLowerCase();
+        if (status.includes('rent')) return 'badge-plot';
+        if (status.includes('lease')) return 'badge-commercial';
+        if (status.includes('buy')) return 'badge-new';
         return '';
-    }
-
-    function getTypeColorClass(type) {
-        if (type === 'commercial') return 'type-commercial';
-        if (type === 'plot') return 'type-plot';
-        return '';
-    }
-
-    function getTypeLabel(type) {
-        if (type === 'commercial') return 'Commercial';
-        if (type === 'plot') return 'Plot/Land';
-        return 'Residential';
     }
 
     function createPropertyCard(p) {
         const img = p.images && p.images.length
-            ? `<img src="${p.images[0]}" alt="${escapeHtml(p.title)}" class="property-real-img">`
-            : `<div class="image-placeholder property-placeholder"><i class="fas ${getPropertyIcon(p.type)}"></i></div>`;
+            ? `<img src="${p.images[0]}" alt="${escapeHtml(p.name)}" class="property-real-img">`
+            : `<div class="image-placeholder property-placeholder"><i class="fas ${getPropertyIcon()}"></i></div>`;
 
         const badgeClass = getBadgeClass(p);
-        const statusText = p.status || (p.type === 'commercial' ? 'Commercial' : p.type === 'plot' ? 'Plot' : 'For Sale');
+        const statusText = p.available || p.status || 'Available';
 
         return `
-            <div class="property-card" data-category="${p.type}" data-id="${p.id}">
+            <div class="property-card" data-id="${p.id}">
                 <div class="property-image">
                     ${img}
                     <div class="property-badge ${badgeClass}">${escapeHtml(statusText)}</div>
-                    <div class="property-price">${escapeHtml(p.price)}</div>
+                    ${p.price ? `<div class="property-price">${escapeHtml(p.price)}</div>` : ''}
                     <div class="property-overlay">
                         <button class="btn btn-sm btn-white" onclick="openPropertyModal('${p.id}')">View Details</button>
                     </div>
                 </div>
                 <div class="property-info">
                     <div class="property-meta">
-                        <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(p.location)}</span>
-                        ${p.area ? `<span><i class="fas fa-vector-square"></i> ${escapeHtml(p.area)}</span>` : ''}
+                        <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(p.place || 'Location')}</span>
+                        ${p.size ? `<span><i class="fas fa-vector-square"></i> ${escapeHtml(p.size)}</span>` : ''}
                     </div>
-                    <h3>${escapeHtml(p.title)}</h3>
-                    ${p.description ? `<p class="property-desc">${escapeHtml(truncate(p.description, 70))}</p>` : ''}
+                    <h3>${escapeHtml(p.name)}</h3>
                     <div class="property-features">
-                        ${p.beds ? `<span><i class="fas fa-bed"></i> ${p.beds} Beds</span>` : ''}
-                        ${p.baths ? `<span><i class="fas fa-bath"></i> ${p.baths} Baths</span>` : ''}
-                        ${p.area ? `<span><i class="fas fa-vector-square"></i> ${escapeHtml(p.area)}</span>` : ''}
+                        ${p.facing ? `<span><i class="fas fa-compass"></i> ${escapeHtml(p.facing)} Facing</span>` : ''}
+                        ${p.khata ? `<span><i class="fas fa-file-contract"></i> ${escapeHtml(p.khata)}</span>` : ''}
+                        ${p.road ? `<span><i class="fas fa-road"></i> ${escapeHtml(p.road)}</span>` : ''}
+                        ${p.loan ? `<span><i class="fas fa-hand-holding-usd"></i> Loan: ${escapeHtml(p.loan)}</span>` : ''}
                     </div>
+                    ${p.description ? `<p class="property-desc">${escapeHtml(truncate(p.description, 70))}</p>` : ''}
                     <div class="property-footer">
-                        <span class="property-type ${getTypeColorClass(p.type)}">
-                            <i class="fas ${getPropertyIcon(p.type)}"></i> ${getTypeLabel(p.type)}
+                        <span class="property-type">
+                            <i class="fas ${getPropertyIcon()}"></i> ${escapeHtml(p.available || 'Available')}
                         </span>
                         <button class="btn btn-sm btn-primary" onclick="enquireProperty('${p.id}')">Enquire</button>
                     </div>
@@ -213,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const filtered = currentFilter === 'all'
             ? allProperties
-            : allProperties.filter((p) => p.type === currentFilter);
+            : allProperties.filter((p) => (p.available || '').toLowerCase().includes(currentFilter.toLowerCase()));
 
         if (!filtered.length) {
             propertiesGrid.innerHTML = `
@@ -282,31 +267,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 ${images.length
                     ? images.slice(0, 4).map((img, i) => `
                         <div class="pm-img ${i === 0 ? 'pm-main' : ''}">
-                            <img src="${img}" alt="${escapeHtml(p.title)}" onclick="openImage(${i})">
+                            <img src="${img}" alt="${escapeHtml(p.name)}" onclick="openImage(${i})">
                         </div>`).join('')
                     : `<div class="pm-img pm-main">
                         <div class="image-placeholder property-placeholder" style="height: 100%; border-radius: 0;">
-                            <i class="fas ${getPropertyIcon(p.type)}"></i>
+                            <i class="fas fa-home"></i>
                         </div>
                     </div>`}
             </div>
             <div class="pm-content">
                 <div class="pm-header">
                     <div>
-                        <span class="pm-badge ${getBadgeClass(p)}">${escapeHtml(p.status || 'For Sale')}</span>
-                        <span class="pm-type"><i class="fas ${getPropertyIcon(p.type)}"></i> ${getTypeLabel(p.type)}</span>
+                        <span class="pm-badge ${getBadgeClass(p)}">${escapeHtml(p.available || p.status || 'Available')}</span>
+                        ${p.size ? `<span class="pm-type"><i class="fas fa-vector-square"></i> ${escapeHtml(p.size)}</span>` : ''}
                     </div>
-                    <div class="pm-price">${escapeHtml(p.price)}</div>
+                    ${p.price ? `<div class="pm-price">${escapeHtml(p.price)}</div>` : ''}
                 </div>
-                <h2 class="pm-title">${escapeHtml(p.title)}</h2>
-                <p class="pm-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(p.location)}</p>
+                <h2 class="pm-title">${escapeHtml(p.name)}</h2>
+                <p class="pm-location"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(p.place || '')}</p>
                 ${p.description ? `<p class="pm-desc">${escapeHtml(p.description)}</p>` : ''}
                 <div class="pm-features">
-                    ${p.beds ? `<div class="pm-feature"><i class="fas fa-bed"></i><strong>${p.beds}</strong><span>Bedrooms</span></div>` : ''}
-                    ${p.baths ? `<div class="pm-feature"><i class="fas fa-bath"></i><strong>${p.baths}</strong><span>Bathrooms</span></div>` : ''}
-                    ${p.area ? `<div class="pm-feature"><i class="fas fa-vector-square"></i><strong>${escapeHtml(p.area)}</strong><span>Area</span></div>` : ''}
-                    ${p.subType ? `<div class="pm-feature"><i class="fas fa-tag"></i><strong>${escapeHtml(p.subType)}</strong><span>Type</span></div>` : ''}
+                    ${p.size ? `<div class="pm-feature"><i class="fas fa-vector-square"></i><strong>${escapeHtml(p.size)}</strong><span>Size</span></div>` : ''}
+                    ${p.facing ? `<div class="pm-feature"><i class="fas fa-compass"></i><strong>${escapeHtml(p.facing)}</strong><span>Facing</span></div>` : ''}
+                    ${p.khata ? `<div class="pm-feature"><i class="fas fa-file-contract"></i><strong>${escapeHtml(p.khata)}</strong><span>Khata</span></div>` : ''}
+                    ${p.road ? `<div class="pm-feature"><i class="fas fa-road"></i><strong>${escapeHtml(p.road)}</strong><span>Road</span></div>` : ''}
                 </div>
+                ${p.loan ? `<div class="pm-loan" style="margin-top: 12px; padding: 10px 14px; background: ${p.loan === 'Yes' ? '#fff3cd' : '#e6f4ea'}; border-radius: 8px; font-size: 0.9rem; color: ${p.loan === 'Yes' ? '#664d03' : '#1e7e34'};"><i class="fas fa-hand-holding-usd" style="margin-right: 6px;"></i>Existing Loan: <strong>${escapeHtml(p.loan)}</strong></div>` : ''}
                 <div class="pm-actions">
                     <button class="btn btn-primary btn-lg" onclick="enquireProperty('${p.id}')">
                         <i class="fas fa-paper-plane"></i> Enquire Now
@@ -400,17 +386,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (interest) interest.value = 'buying';
             if (message) {
-                message.value = `I'm interested in this property:\n\n${p.title}\nLocation: ${p.location}\nPrice: ${p.price}`;
+                message.value = `I'm interested in this property:\n\n${p.name}\nPlace: ${p.place}\nSize: ${p.size}${p.price ? '\nPrice: ' + p.price : ''}`;
             }
             if (formHeading) {
-                formHeading.textContent = `Enquire About: ${p.title}`;
+                formHeading.textContent = `Enquire About: ${p.name}`;
             }
 
             // Store property reference
             const hiddenInput = document.getElementById('propertyRef');
             if (hiddenInput) {
                 hiddenInput.value = p.id;
-                hiddenInput.dataset.title = p.title;
+                hiddenInput.dataset.title = p.name;
             }
 
             // Focus on first name
@@ -451,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (propertyRef && propertyRef.value) {
                 data.propertyId = propertyRef.value;
                 const prop = allProperties.find((x) => x.id === propertyRef.value);
-                if (prop) data.propertyTitle = prop.title;
+                if (prop) data.propertyTitle = prop.name;
             }
 
             fetch('/api/enquiries', {
