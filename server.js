@@ -2,7 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const db = require('./data/db');
-const { createApp } = require('./app');
+const { createApp } = require('./lib/app');
 
 const PORT = process.env.PORT || 3000;
 const app = createApp();
