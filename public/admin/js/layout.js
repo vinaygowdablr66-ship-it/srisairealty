@@ -7,7 +7,7 @@ function renderLayout(activePage) {
     document.body.innerHTML = `
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <div class="brand-icon"><i class="fas fa-home"></i></div>
+            <div class="brand-icon"><img src="../img/srisai-logo-sm.png" alt="Sri Sai Realty" class="brand-logo-img"></div>
             <div>
                 <h2>Sri Sai Realty</h2>
                 <small>Admin Panel</small>
