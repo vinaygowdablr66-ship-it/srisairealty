@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <button class="btn btn-primary btn-lg" onclick="enquireProperty('${p.id}')">
                         <i class="fas fa-paper-plane"></i> Enquire Now
                     </button>
-                    <a href="tel:+919876543210" class="btn btn-outline btn-lg">
+                    <a href="tel:+919986111031" class="btn btn-outline btn-lg">
                         <i class="fas fa-phone"></i> Call Us
                     </a>
                 </div>
