@@ -595,6 +595,8 @@ ul { list-style: none; }
 .footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); padding: 20px 0; }
 .footer-bottom-content { display: flex; justify-content: space-between; align-items: center; }
 .footer-bottom p { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
+.footer-credit a { color: var(--primary); font-weight: 600; }
+.footer-credit a:hover { color: var(--primary-light); }
 .footer-bottom-links { display: flex; gap: 22px; }
 .footer-bottom-links a { font-size: 0.82rem; color: rgba(255,255,255,0.35); }
 .footer-bottom-links a:hover { color: var(--primary); }
