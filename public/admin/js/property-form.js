@@ -44,7 +44,7 @@ function renderForm(p) {
 
     const khataOptions = ['', 'A Khata', 'B Khata', 'Commercial', 'Other'];
     const loanOptions = ['', 'Yes', 'No'];
-    const availableOptions = ['', 'Buy', 'Lease', 'Rent'];
+    const availableOptions = ['', 'Buy', 'Sell', 'Lease', 'Rent'];
 
     content.innerHTML = `
         <div class="card">
