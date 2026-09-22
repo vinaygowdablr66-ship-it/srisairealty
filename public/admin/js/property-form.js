@@ -42,7 +42,7 @@ function renderForm(p) {
     const isEdit = !!p;
     existingImages = p ? p.images || [] : [];
 
-    const khataOptions = ['', 'A Khata', 'B Khata', 'Commercial', 'Other'];
+    const khataOptions = ['', 'A Khata', 'B Khata', 'BDA Khata', 'Commercial', 'Other'];
     const loanOptions = ['', 'Yes', 'No'];
     const availableOptions = ['', 'Buy', 'Sell', 'Lease', 'Rent'];
 
