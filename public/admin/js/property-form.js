@@ -42,7 +42,7 @@ function renderForm(p) {
     const isEdit = !!p;
     existingImages = p ? p.images || [] : [];
 
-    const khataOptions = ['', 'A Khata', 'B Khata', 'BDA Khata', 'Commercial', 'Other'];
+    const khataOptions = ['', 'A Khata', 'B Khata', 'BDA Khata' 'Commercial', 'Other'];
     const loanOptions = ['', 'Yes', 'No'];
     const availableOptions = ['', 'Buy', 'Sell', 'Lease', 'Rent'];
 
@@ -203,30 +203,44 @@ async function handleSubmit(e) {
     const originalHtml = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-    const formData = new FormData();
-    formData.append('name', document.getElementById('name').value.trim());
-    formData.append('size', document.getElementById('size').value.trim());
-    formData.append('facing', document.getElementById('facing').value);
-    formData.append('khata', document.getElementById('khata').value);
-    formData.append('place', document.getElementById('place').value.trim());
-    formData.append('road', document.getElementById('road').value.trim());
-    formData.append('loan', document.getElementById('loan').value);
-    formData.append('available', document.getElementById('available').value);
-    formData.append('price', document.getElementById('price').value.trim());
-    formData.append('status', document.getElementById('status').value);
-    formData.append('description', document.getElementById('description').value);
-    formData.append('featured', document.getElementById('featured').checked);
-
-    selectedFiles.forEach((f) => formData.append('images', f));
-    removeImages.forEach((img) => formData.append('removeImages', img));
-
     try {
+        const payload = {
+            name: document.getElementById('name').value.trim(),
+            size: document.getElementById('size').value.trim(),
+            facing: document.getElementById('facing').value,
+            khata: document.getElementById('khata').value,
+            place: document.getElementById('place').value.trim(),
+            road: document.getElementById('road').value.trim(),
+            loan: document.getElementById('loan').value,
+            available: document.getElementById('available').value,
+            price: document.getElementById('price').value.trim(),
+            status: document.getElementById('status').value,
+            description: document.getElementById('description').value,
+            featured: document.getElementById('featured').checked
+        };
+
+        const keptImages = existingImages.filter((img) => !removeImages.includes(img));
+        const newUrls = [];
+        for (const f of selectedFiles) {
+            if (!f.type.startsWith('image/') || f.size > 5 * 1024 * 1024) continue;
+            const sign = await API.post('/api/uploads/sign', JSON.stringify({ fileName: f.name }));
+            const putRes = await fetch(sign.uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': f.type },
+                body: f
+            });
+            if (!putRes.ok) throw new Error('Image upload failed. Please try again.');
+            newUrls.push(sign.publicUrl);
+        }
+        payload.images = [...keptImages, ...newUrls];
+        if (removeImages.length) payload.removeImages = removeImages;
+
         const isEdit = !!editId;
         if (isEdit) {
-            await API.put('/api/properties/' + editId, formData);
+            await API.put('/api/properties/' + editId, JSON.stringify(payload));
             toast('Property updated successfully', 'success');
         } else {
-            await API.post('/api/properties', formData);
+            await API.post('/api/properties', JSON.stringify(payload));
             toast('Property created successfully', 'success');
         }
         setTimeout(() => (window.location.href = '/admin/properties.html'), 600);
