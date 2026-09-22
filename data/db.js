@@ -253,6 +253,18 @@ async function getStats() {
 // --- Storage: image upload ---
 const IMG_BUCKET = process.env.SUPABASE_BUCKET || 'property-images';
 
+async function createSignedUploadUrl(originalName, contentType) {
+  const ext = (originalName.match(/\.\w+$/) || ['.jpg'])[0].toLowerCase();
+  const path = `properties/${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+  const { data, error } = await supabase.storage
+    .from(IMG_BUCKET)
+    .createSignedUploadUrl(path);
+  if (error) throw error;
+  if (!data || !data.signedUrl) throw new Error('Failed to create signed upload URL');
+  const publicUrl = supabase.storage.from(IMG_BUCKET).getPublicUrl(path).data.publicUrl;
+  return { uploadUrl: data.signedUrl, path, publicUrl };
+}
+
 async function uploadImages(files) {
   const urls = [];
   for (const file of files) {
@@ -298,6 +310,7 @@ module.exports = {
   updateEnquiry,
   deleteEnquiry,
   getStats,
+  createSignedUploadUrl,
   uploadImages,
   deleteImages
 };
